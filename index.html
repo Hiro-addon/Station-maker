@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>駅名標メーカー</title>
+<style>
+*{
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
+html,body{
+margin:0;
+width:100%;
+min-height:100%;
+background:#111214;
+color:#fff;
+font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif;
+}
+body{
+padding-bottom:30px;
+}
+header{
+height:58px;
+display:flex;
+align-items:center;
+padding:0 16px;
+background:#191b1f;
+border-bottom:1px solid #2b2e34;
+font-size:20px;
+font-weight:700;
+position:sticky;
+top:0;
+z-index:50;
+}
+.container{
+max-width:1000px;
+margin:auto;
+padding:12px;
+}
+.card{
+background:#191b1f;
+border:1px solid #2b2e34;
+border-radius:14px;
+padding:14px;
+margin-bottom:12px;
+}
+.title{
+font-size:15px;
+font-weight:700;
+margin-bottom:12px;
+}
+.preview-card{
+padding:12px;
+overflow:hidden;
+}
+.preview-label{
+font-size:12px;
+color:#9297a1;
+margin-bottom:10px;
+}
+.preview-area{
+width:100%;
+display:flex;
+justify-content:center;
+overflow:hidden;
+}
+.preview-scale{
+width:100%;
+position:relative;
+overflow:hidden;
+}
+#preview{
+width:900px;
+height:500px;
+position:absolute;
+left:0;
+top:0;
+background:#fff;
+overflow:hidden;
+font-family:Arial,"Noto Sans JP","Yu Gothic",sans-serif;
+color:#111;
+transform-origin:top left;
+}
+
+.frame{
+position:absolute;
+left:60px;
+right:60px;
+top:55px;
+bottom:55px;
+border:10px solid #350000;
+}
+
+.top-line{
+position:absolute;
+left:75px;
+right:75px;
+top:105px;
+height:9px;
+background:#350000;
+}
+
+.bottom-line{
+position:absolute;
+left:75px;
+right:75px;
+bottom:105px;
+height:9px;
+background:#350000;
+}
+
+.center{
+position:absolute;
+left:235px;
+right:235px;
+top:120px;
+height:250px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+}
+
+.station-name{
+font-size:67px;
+font-weight:800;
+line-height:1;
+white-space:nowrap;
+}
+
+.station-kana{
+font-size:21px;
+font-weight:700;
+margin-top:7px;
+}
+
+.station-en{
+font-size:25px;
+font-weight:500;
+margin-top:12px;
+}
+
+.station-code-main{
+position:absolute;
+left:-70px;
+top:0;
+width:60px;
+height:82px;
+border:4px solid #63b92e;
+border-radius:7px;
+background:#fff;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+font-weight:800;
+}
+
+.station-code-main .line-code{
+font-size:20px;
+line-height:1;
+}
+
+.station-code-main .station-num{
+font-size:28px;
+line-height:1;
+margin-top:2px;
+}
+
+.left-station{
+position:absolute;
+left:80px;
+top:285px;
+width:205px;
+text-align:center;
+}
+
+.right-station{
+position:absolute;
+right:80px;
+top:285px;
+width:205px;
+text-align:center;
+}
+
+.neighbor-arrow{
+position:absolute;
+left:75px;
+right:75px;
+top:250px;
+height:34px;
+background:#008044;
+}
+
+.neighbor-arrow::after{
+content:"";
+position:absolute;
+right:-40px;
+top:-17px;
+border-top:34px solid transparent;
+border-bottom:34px solid transparent;
+border-left:40px solid #008044;
+}
+
+.neighbor-name{
+position:relative;
+z-index:2;
+font-size:25px;
+font-weight:700;
+color:#fff;
+}
+
+.neighbor-en{
+font-size:20px;
+margin-top:6px;
+font-weight:500;
+}
+
+.neighbor-code{
+display:flex;
+align-items:center;
+justify-content:center;
+margin-top:5px;
+}
+
+.neighbor-code-box{
+min-width:44px;
+height:39px;
+border:3px solid #63b92e;
+border-radius:5px;
+background:#fff;
+color:#111;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+font-weight:800;
+padding:0 5px;
+}
+
+.route-name{
+position:absolute;
+right:130px;
+top:130px;
+font-size:24px;
+font-weight:500;
+line-height:1.1;
+text-align:center;
+}
+
+.route-symbol{
+position:absolute;
+right:75px;
+top:130px;
+width:48px;
+height:48px;
+border:3px solid #111;
+border-radius:2px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:29px;
+font-weight:900;
+background:#fff;
+}
+
+.company{
+position:absolute;
+right:75px;
+top:190px;
+font-size:18px;
+font-weight:700;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.field{
+margin-bottom:2px;
+}
+
+label{
+display:block;
+font-size:12px;
+color:#a2a7b0;
+margin-bottom:6px;
+}
+
+input,select{
+width:100%;
+height:44px;
+border:1px solid #363a42;
+border-radius:9px;
+background:#101216;
+color:#fff;
+padding:0 11px;
+font-size:16px;
+outline:none;
+}
+
+input:focus,select:focus{
+border-color:#4d82ff;
+}
+
+.toggle-list{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.toggle{
+height:45px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 11px;
+background:#101216;
+border:1px solid #30343b;
+border-radius:9px;
+}
+
+.toggle-text{
+font-size:14px;
+}
+
+.switch{
+width:47px;
+height:27px;
+border-radius:20px;
+background:#353941;
+padding:3px;
+cursor:pointer;
+transition:.15s;
+}
+
+.switch::after{
+content:"";
+display:block;
+width:21px;
+height:21px;
+border-radius:50%;
+background:#fff;
+transition:.15s;
+}
+
+.switch.on{
+background:#3478f6;
+}
+
+.switch.on::after{
+transform:translateX(20px);
+}
+
+.color-list{
+display:grid;
+grid-template-columns:repeat(6,1fr);
+gap:8px;
+}
+
+.color{
+height:38px;
+border-radius:8px;
+border:2px solid transparent;
+cursor:pointer;
+}
+
+.color.active{
+border-color:#fff;
+box-shadow:0 0 0 2px #3478f6;
+}
+
+.color-green{background:#008044}
+.color-blue{background:#0071bc}
+.color-red{background:#d9272e}
+.color-orange{background:#e77817}
+.color-yellow{background:#e3b500}
+.color-purple{background:#75469a}
+.color-pink{background:#d72b72}
+.color-cyan{background:#009ca6}
+.color-black{background:#222}
+.color-white{background:#f4f4f4}
+
+.buttons{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+button{
+height:46px;
+border:0;
+border-radius:9px;
+background:#30343c;
+color:#fff;
+font-size:15px;
+font-weight:700;
+}
+
+button.primary{
+background:#3478f6;
+}
+
+button:active{
+transform:scale(.98);
+}
+
+@media(max-width:600px){
+.container{
+padding:9px;
+}
+.grid{
+grid-template-columns:1fr;
+}
+.color-list{
+grid-template-columns:repeat(5,1fr);
+}
+}
+
+@media(min-width:700px){
+.preview-card{
+padding:16px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>駅名標メーカー</header>
+
+<div class="container">
+
+<div class="card preview-card">
+
+<div class="preview-label">駅名標プレビュー</div>
+
+<div class="preview-area" id="previewArea">
+
+<div class="preview-scale" id="previewScale">
+
+<div id="preview">
+
+<div class="frame"></div>
+
+<div class="top-line"></div>
+
+<div class="bottom-line"></div>
+
+<div class="neighbor-arrow" id="pArrow"></div>
+
+<div class="center">
+
+<div class="station-name part" id="pName">
+東京
+</div>
+
+<div class="station-kana part" id="pKana">
+とうきょう
+</div>
+
+<div class="station-en part" id="pEnglish">
+Tōkyō
+</div>
+
+<div class="station-code-main part" id="pMainCode">
+
+<div class="line-code" id="pMainLineCode">
+JY
+</div>
+
+<div class="station-num" id="pMainNumber">
+01
+</div>
+
+</div>
+
+</div>
+
+<div class="route-name part" id="pRouteName">
+東京<br>豆
+</div>
+
+<div class="route-symbol part" id="pRouteSymbol">
+山
+</div>
+
+<div class="company part" id="pCompany">
+国
+</div>
+
+<div class="left-station part" id="pLeftBox">
+
+<div class="neighbor-name" id="pLeft">
+神田
+</div>
+
+<div class="neighbor-en" id="pLeftEnglish">
+Kanda
+</div>
+
+<div class="neighbor-code" id="pLeftCodeBox">
+
+<div class="neighbor-code-box" id="pLeftCode">
+JY<br>00
+</div>
+
+</div>
+
+</div>
+
+<div class="right-station part" id="pRightBox">
+
+<div class="neighbor-name" id="pRight">
+有楽町
+</div>
+
+<div class="neighbor-en" id="pRightEnglish">
+Yūrakuchō
+</div>
+
+<div class="neighbor-code" id="pRightCodeBox">
+
+<div class="neighbor-code-box" id="pRightCode">
+JY<br>30
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">駅を選択</div>
+
+<select id="preset">
+
+<option value="tokyo">東京駅</option>
+<option value="kanda">神田駅</option>
+<option value="yurakucho">有楽町駅</option>
+<option value="shinjuku">新宿駅</option>
+<option value="shibuya">渋谷駅</option>
+<option value="custom">カスタム</option>
+
+</select>
+
+</div>
+
+<div class="card">
+
+<div class="title">中央の駅</div>
+
+<div class="grid">
+
+<div class="field">
+<label>駅名</label>
+<input id="name" value="東京">
+</div>
+
+<div class="field">
+<label>読み</label>
+<input id="kana" value="とうきょう">
+</div>
+
+<div class="field">
+<label>英語</label>
+<input id="english" value="Tōkyō">
+</div>
+
+<div class="field">
+<label>駅番号</label>
+<input id="number" value="01">
+</div>
+
+<div class="field">
+<label>路線記号</label>
+<input id="lineCode" value="JY">
+</div>
+
+<div class="field">
+<label>路線名</label>
+<input id="routeName" value="東京豆">
+</div>
+
+<div class="field">
+<label>路線記号横の文字</label>
+<input id="routeSymbol" value="山">
+</div>
+
+<div class="field">
+<label>右上表示</label>
+<input id="company" value="国">
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">左の駅</div>
+
+<div class="grid">
+
+<div class="field">
+<label>駅名</label>
+<input id="left" value="神田">
+</div>
+
+<div class="field">
+<label>英語</label>
+<input id="leftEnglish" value="Kanda">
+</div>
+
+<div class="field">
+<label>駅番号</label>
+<input id="leftNumber" value="00">
+</div>
+
+<div class="field">
+<label>路線記号</label>
+<input id="leftLineCode" value="JY">
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">右の駅</div>
+
+<div class="grid">
+
+<div class="field">
+<label>駅名</label>
+<input id="right" value="有楽町">
+</div>
+
+<div class="field">
+<label>英語</label>
+<input id="rightEnglish" value="Yūrakuchō">
+</div>
+
+<div class="field">
+<label>駅番号</label>
+<input id="rightNumber" value="30">
+</div>
+
+<div class="field">
+<label>路線記号</label>
+<input id="rightLineCode" value="JY">
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">表示設定</div>
+
+<div class="toggle-list">
+
+<div class="toggle">
+<div class="toggle-text">駅名</div>
+<div class="switch on" data-target="name"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">読み仮名</div>
+<div class="switch on" data-target="kana"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">英語</div>
+<div class="switch on" data-target="english"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">中央の駅番号</div>
+<div class="switch on" data-target="mainCode"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">左の隣駅</div>
+<div class="switch on" data-target="left"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">左の駅番号</div>
+<div class="switch on" data-target="leftCode"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">左の英語</div>
+<div class="switch on" data-target="leftEnglish"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">右の隣駅</div>
+<div class="switch on" data-target="right"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">右の駅番号</div>
+<div class="switch on" data-target="rightCode"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">右の英語</div>
+<div class="switch on" data-target="rightEnglish"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">路線名</div>
+<div class="switch on" data-target="routeName"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">路線記号横の表示</div>
+<div class="switch on" data-target="routeSymbol"></div>
+</div>
+
+<div class="toggle">
+<div class="toggle-text">右上表示</div>
+<div class="switch on" data-target="company"></div>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">路線カラー</div>
+
+<div class="color-list">
+
+<div class="color color-green active" data-color="#008044"></div>
+<div class="color color-blue" data-color="#0071bc"></div>
+<div class="color color-red" data-color="#d9272e"></div>
+<div class="color color-orange" data-color="#e77817"></div>
+<div class="color color-yellow" data-color="#e3b500"></div>
+<div class="color color-purple" data-color="#75469a"></div>
+<div class="color color-pink" data-color="#d72b72"></div>
+<div class="color color-cyan" data-color="#009ca6"></div>
+<div class="color color-black" data-color="#222222"></div>
+<div class="color color-white" data-color="#f4f4f4"></div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="buttons">
+<button id="reset">リセット</button>
+<button id="save" class="primary">PNGで保存</button>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const $=id=>document.getElementById(id);
+
+const presets={
+
+tokyo:{
+name:"東京",
+kana:"とうきょう",
+english:"Tōkyō",
+number:"01",
+lineCode:"JY",
+routeName:"東京豆",
+routeSymbol:"山",
+company:"国",
+left:"神田",
+leftEnglish:"Kanda",
+leftNumber:"00",
+leftLineCode:"JY",
+right:"有楽町",
+rightEnglish:"Yūrakuchō",
+rightNumber:"30",
+rightLineCode:"JY"
+},
+
+kanda:{
+name:"神田",
+kana:"かんだ",
+english:"Kanda",
+number:"02",
+lineCode:"JY",
+routeName:"山手線",
+routeSymbol:"山",
+company:"国",
+left:"秋葉原",
+leftEnglish:"Akihabara",
+leftNumber:"03",
+leftLineCode:"JY",
+right:"東京",
+rightEnglish:"Tōkyō",
+rightNumber:"01",
+rightLineCode:"JY"
+},
+
+yurakucho:{
+name:"有楽町",
+kana:"ゆうらくちょう",
+english:"Yūrakuchō",
+number:"30",
+lineCode:"JY",
+routeName:"山手線",
+routeSymbol:"山",
+company:"国",
+left:"東京",
+leftEnglish:"Tōkyō",
+leftNumber:"01",
+leftLineCode:"JY",
+right:"新橋",
+rightEnglish:"Shimbashi",
+rightNumber:"29",
+rightLineCode:"JY"
+},
+
+shinjuku:{
+name:"新宿",
+kana:"しんじゅく",
+english:"Shinjuku",
+number:"17",
+lineCode:"JY",
+routeName:"山手線",
+routeSymbol:"山",
+company:"国",
+left:"代々木",
+leftEnglish:"Yoyogi",
+leftNumber:"18",
+leftLineCode:"JY",
+right:"新大久保",
+rightEnglish:"Shin-Ōkubo",
+rightNumber:"16",
+rightLineCode:"JY"
+},
+
+shibuya:{
+name:"渋谷",
+kana:"しぶや",
+english:"Shibuya",
+number:"20",
+lineCode:"JY",
+routeName:"山手線",
+routeSymbol:"山",
+company:"国",
+left:"恵比寿",
+leftEnglish:"Ebisu",
+leftNumber:"21",
+leftLineCode:"JY",
+right:"原宿",
+rightEnglish:"Harajuku",
+rightNumber:"19",
+rightLineCode:"JY"
+}
+
+};
+
+function resizePreview(){
+
+const area=$("previewArea");
+const scaleBox=$("previewScale");
+const preview=$("preview");
+
+const available=area.clientWidth;
+
+const scale=Math.min(1,available/900);
+
+preview.style.transform="scale("+scale+")";
+
+scaleBox.style.height=(500*scale)+"px";
+
+}
+
+window.addEventListener("resize",resizePreview);
+
+if(window.ResizeObserver){
+
+new ResizeObserver(resizePreview).observe($("previewArea"));
+
+}
+
+const map={
+name:"pName",
+kana:"pKana",
+english:"pEnglish",
+number:"pMainNumber",
+lineCode:"pMainLineCode",
+routeName:"pRouteName",
+routeSymbol:"pRouteSymbol",
+company:"pCompany",
+left:"pLeft",
+leftEnglish:"pLeftEnglish",
+right:"pRight",
+rightEnglish:"pRightEnglish"
+};
+
+Object.keys(map).forEach(id=>{
+$(id).addEventListener("input",update);
+});
+
+$("leftNumber").addEventListener("input",update);
+$("rightNumber").addEventListener("input",update);
+$("leftLineCode").addEventListener("input",update);
+$("rightLineCode").addEventListener("input",update);
+
+function update(){
+
+$("pName").textContent=$("name").value;
+
+$("pKana").textContent=$("kana").value;
+
+$("pEnglish").textContent=$("english").value;
+
+$("pMainLineCode").textContent=$("lineCode").value;
+
+$("pMainNumber").textContent=$("number").value;
+
+$("pRouteName").innerHTML=$("routeName").value.replace(/\n/g,"<br>");
+
+$("pRouteSymbol").textContent=$("routeSymbol").value;
+
+$("pCompany").textContent=$("company").value;
+
+$("pLeft").textContent=$("left").value;
+
+$("pLeftEnglish").textContent=$("leftEnglish").value;
+
+$("pRight").textContent=$("right").value;
+
+$("pRightEnglish").textContent=$("rightEnglish").value;
+
+$("pLeftCode").innerHTML=
+$("leftLineCode").value+"<br>"+$("leftNumber").value;
+
+$("pRightCode").innerHTML=
+$("rightLineCode").value+"<br>"+$("rightNumber").value;
+
+document.querySelectorAll(".switch").forEach(sw=>{
+
+const target=sw.dataset.target;
+
+let elements=[];
+
+if(target==="name")elements=[$("pName")];
+
+if(target==="kana")elements=[$("pKana")];
+
+if(target==="english")elements=[$("pEnglish")];
+
+if(target==="mainCode")elements=[$("pMainCode")];
+
+if(target==="left")elements=[$("pLeft")];
+
+if(target==="leftEnglish")elements=[$("pLeftEnglish")];
+
+if(target==="leftCode")elements=[$("pLeftCodeBox")];
+
+if(target==="right")elements=[$("pRight")];
+
+if(target==="rightEnglish")elements=[$("pRightEnglish")];
+
+if(target==="rightCode")elements=[$("pRightCodeBox")];
+
+if(target==="routeName")elements=[$("pRouteName")];
+
+if(target==="routeSymbol")elements=[$("pRouteSymbol")];
+
+if(target==="company")elements=[$("pCompany")];
+
+elements.forEach(el=>{
+el.style.display=sw.classList.contains("on")?"":"none";
+});
+
+});
+
+const leftName=
+document.querySelector('[data-target="left"]').classList.contains("on");
+
+const rightName=
+document.querySelector('[data-target="right"]').classList.contains("on");
+
+$("pArrow").style.display=
+(leftName||rightName)?"":"none";
+
+}
+
+document.querySelectorAll(".switch").forEach(sw=>{
+
+sw.addEventListener("click",()=>{
+
+sw.classList.toggle("on");
+
+update();
+
+});
+
+});
+
+document.querySelectorAll(".color").forEach(color=>{
+
+color.addEventListener("click",()=>{
+
+document.querySelectorAll(".color").forEach(x=>{
+x.classList.remove("active");
+});
+
+color.classList.add("active");
+
+$("pArrow").style.background=color.dataset.color;
+
+});
+
+});
+
+$("preset").addEventListener("change",()=>{
+
+const key=$("preset").value;
+
+if(!presets[key])return;
+
+const data=presets[key];
+
+Object.keys(data).forEach(key=>{
+
+if($(key)){
+$(key).value=data[key];
+}
+
+});
+
+update();
+
+});
+
+$("reset").addEventListener("click",()=>{
+
+const data=presets.tokyo;
+
+Object.keys(data).forEach(key=>{
+
+if($(key)){
+$(key).value=data[key];
+}
+
+});
+
+$("preset").value="tokyo";
+
+document.querySelectorAll(".switch").forEach(sw=>{
+sw.classList.add("on");
+});
+
+document.querySelectorAll(".color").forEach(x=>{
+x.classList.remove("active");
+});
+
+document.querySelector(".color-green").classList.add("active");
+
+$("pArrow").style.background="#008044";
+
+update();
+
+resizePreview();
+
+});
+
+$("save").addEventListener("click",()=>{
+
+const canvas=document.createElement("canvas");
+
+canvas.width=1800;
+canvas.height=1000;
+
+const ctx=canvas.getContext("2d");
+
+ctx.fillStyle="#fff";
+ctx.fillRect(0,0,1800,1000);
+
+ctx.save();
+
+ctx.scale(2,2);
+
+const frame="#350000";
+
+ctx.fillStyle="#fff";
+ctx.fillRect(0,0,900,500);
+
+ctx.strokeStyle=frame;
+ctx.lineWidth=10;
+ctx.strokeRect(65,60,770,380);
+
+ctx.fillStyle=frame;
+ctx.fillRect(75,105,750,9);
+ctx.fillRect(75,395,750,9);
+
+const activeColor=
+document.querySelector(".color.active")?.dataset.color||"#008044";
+
+const leftOn=
+document.querySelector('[data-target="left"]').classList.contains("on");
+
+const rightOn=
+document.querySelector('[data-target="right"]').classList.contains("on");
+
+if(leftOn||rightOn){
+
+ctx.fillStyle=activeColor;
+
+ctx.fillRect(75,250,750,34);
+
+ctx.beginPath();
+
+ctx.moveTo(825,233);
+ctx.lineTo(865,267);
+ctx.lineTo(825,301);
+
+ctx.closePath();
+ctx.fill();
+
+}
+
+ctx.fillStyle="#111";
+
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+if(document.querySelector('[data-target="name"]').classList.contains("on")){
+
+ctx.font="800 67px Arial";
+
+ctx.fillText(
+$("name").value,
+450,
+205
+);
+
+}
+
+if(document.querySelector('[data-target="kana"]').classList.contains("on")){
+
+ctx.font="700 21px Arial";
+
+ctx.fillText(
+$("kana").value,
+450,
+270
+);
+
+}
+
+if(document.querySelector('[data-target="english"]').classList.contains("on")){
+
+ctx.font="25px Arial";
+
+ctx.fillText(
+$("english").value,
+450,
+310
+);
+
+}
+
+if(document.querySelector('[data-target="mainCode"]').classList.contains("on")){
+
+ctx.fillStyle="#fff";
+
+ctx.fillRect(
+165,
+120,
+60,
+82
+);
+
+ctx.strokeStyle="#63b92e";
+ctx.lineWidth=4;
+
+ctx.strokeRect(
+165,
+120,
+60,
+82
+);
+
+ctx.fillStyle="#111";
+
+ctx.font="800 20px Arial";
+
+ctx.fillText(
+$("lineCode").value,
+195,
+143
+);
+
+ctx.font="800 28px Arial";
+
+ctx.fillText(
+$("number").value,
+195,
+177
+);
+
+}
+
+if(document.querySelector('[data-target="left"]').classList.contains("on")){
+
+ctx.fillStyle="#fff";
+
+ctx.font="700 25px Arial";
+
+ctx.fillText(
+$("left").value,
+180,
+335
+);
+
+}
+
+if(document.querySelector('[data-target="leftEnglish"]').classList.contains("on")){
+
+ctx.font="20px Arial";
+
+ctx.fillText(
+$("leftEnglish").value,
+180,
+365
+);
+
+}
+
+if(document.querySelector('[data-target="leftCode"]').classList.contains("on")){
+
+ctx.fillStyle="#fff";
+
+ctx.fillRect(
+158,
+380,
+44,
+39
+);
+
+ctx.strokeStyle="#63b92e";
+ctx.lineWidth=3;
+
+ctx.strokeRect(
+158,
+380,
+44,
+39
+);
+
+ctx.fillStyle="#111";
+
+ctx.font="800 14px Arial";
+
+ctx.fillText(
+$("leftLineCode").value+$("leftNumber").value,
+180,
+400
+);
+
+}
+
+if(document.querySelector('[data-target="right"]').classList.contains("on")){
+
+ctx.fillStyle="#fff";
+
+ctx.font="700 25px Arial";
+
+ctx.fillText(
+$("right").value,
+720,
+335
+);
+
+}
+
+if(document.querySelector('[data-target="rightEnglish"]').classList.contains("on")){
+
+ctx.font="20px Arial";
+
+ctx.fillText(
+$("rightEnglish").value,
+720,
+365
+);
+
+}
+
+if(document.querySelector('[data-target="rightCode"]').classList.contains("on")){
+
+ctx.fillStyle="#fff";
+
+ctx.fillRect(
+698,
+380,
+44,
+39
+);
+
+ctx.strokeStyle="#63b92e";
+ctx.lineWidth=3;
+
+ctx.strokeRect(
+698,
+380,
+44,
+39
+);
+
+ctx.fillStyle="#111";
+
+ctx.font="800 14px Arial";
+
+ctx.fillText(
+$("rightLineCode").value+$("rightNumber").value,
+720,
+400
+);
+
+}
+
+if(document.querySelector('[data-target="routeName"]').classList.contains("on")){
+
+ctx.fillStyle="#111";
+
+ctx.font="500 24px Arial";
+
+const route=$("routeName").value.split("\n");
+
+route.forEach((text,i)=>{
+
+ctx.fillText(
+text,
+555,
+145+i*27
+);
+
+});
+
+}
+
+if(document.querySelector('[data-target="routeSymbol"]').classList.contains("on")){
+
+ctx.fillStyle="#fff";
+
+ctx.fillRect(
+750,
+130,
+48,
+48
+);
+
+ctx.strokeStyle="#111";
+ctx.lineWidth=3;
+
+ctx.strokeRect(
+750,
+130,
+48,
+48
+);
+
+ctx.fillStyle="#111";
+
+ctx.font="900 29px Arial";
+
+ctx.fillText(
+$("routeSymbol").value,
+774,
+154
+);
+
+}
+
+if(document.querySelector('[data-target="company"]').classList.contains("on")){
+
+ctx.fillStyle="#111";
+
+ctx.font="700 18px Arial";
+
+ctx.fillText(
+$("company").value,
+790,
+190
+);
+
+}
+
+ctx.restore();
+
+canvas.toBlob(blob=>{
+
+if(!blob)return;
+
+const url=URL.createObjectURL(blob);
+
+const a=document.createElement("a");
+
+a.href=url;
+
+a.download=
+($("name").value||"駅名標")+
+".png";
+
+a.click();
+
+setTimeout(()=>{
+URL.revokeObjectURL(url);
+},1000);
+
+},"image/png");
+
+});
+
+update();
+
+resizePreview();
+
+</script>
+
+</body>
+</html>
